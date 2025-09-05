@@ -1,0 +1,352 @@
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Centrifugal Pump — Differential Pressure Switch Animation</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#60a5fa;--ok:#34d399;--warn:#f97316;--muted:#94a3b8}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Segoe,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#031129 0%, #071428 100%);color:#e6eef8}
+    .wrap{max-width:980px;margin:28px auto;padding:20px;}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .designer{font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+    .card{background:rgba(255,255,255,0.03);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .gauges{display:flex;flex-direction:column;gap:14px}
+
+    .gauge{display:flex;align-items:center;gap:12px}
+    .gauge svg{width:120px;height:80px}
+    .gauge .info{line-height:1}
+    .value{font-weight:700;font-size:18px}
+    .small{font-size:12px;color:var(--muted)}
+
+    .controls{display:flex;flex-direction:column;gap:12px}
+    label{font-size:13px;color:var(--muted)}
+    input[type=range]{width:100%}
+    .row{display:flex;gap:10px;align-items:center}
+
+    .switch-visual{display:flex;gap:12px;align-items:center}
+    .switch-box{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px}
+    .terminals{display:flex;gap:10px}
+    .term{background:#071228;padding:8px 10px;border-radius:8px;font-size:13px;border:1px solid rgba(255,255,255,0.03)}
+    .term.on{box-shadow:0 6px 18px rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.3)}
+
+    .motor{display:flex;align-items:center;gap:12px}
+    .motor .rotor{width:56px;height:56px;border-radius:8px;background:linear-gradient(180deg,#0b2a3b,#062036);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.03)}
+    .blade{width:22px;height:22px;border-radius:3px;background:linear-gradient(180deg,#7aa7ff,#3a6fd6);transform-origin:center;}
+    .blade.spin{animation:spin 1s linear infinite}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+    .badge{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;font-weight:600}
+
+    footer{margin-top:14px;color:var(--muted);font-size:13px}
+
+    .btn{background:linear-gradient(90deg,#1e3a8a,#2563eb);padding:8px 12px;border-radius:8px;border:none;color:white;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+
+    .status{padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);display:flex;justify-content:space-between;align-items:center}
+    .status .dot{width:12px;height:12px;border-radius:999px}
+    .dot.on{background:var(--ok);box-shadow:0 6px 20px rgba(52,211,153,0.12)}
+    .dot.off{background:var(--warn)}
+
+    /* responsive */
+    @media(max-width:880px){.grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Centrifugal Chilled-Water Pump — Differential Pressure Switch Animation</h1>
+        <div class="designer">designed by: <strong>Engr. Muhammad Raheel Nadeem</strong></div>
+      </div>
+      <div class="badge">Setpoint (Diff Switch): <strong id="setpointLabel">3.5</strong> bar</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="gauges">
+          <div class="gauge">
+            <svg id="suctionGauge" viewBox="0 0 120 80"><path d="M 21.8948822334847 82 A 44 44 0 1 1 98.1051177665153 82" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="8"></path><defs><linearGradient id="grad" x1="0%" x2="100%"><stop offset="0%" stop-color="#60a5fa"></stop><stop offset="100%" stop-color="#3b82f6"></stop></linearGradient></defs><path d="M 21.8948822334847 82 A 44 44 0 0 1 75.04888630632942 18.65352468542003" fill="none" stroke="url(#grad)" stroke-width="8" stroke-linecap="round"></path><line x1="60" y1="60" x2="71.62868487307274" y2="28.050450893279116" stroke="#eaf4ff" stroke-width="2"></line><circle cx="60" cy="60" r="4" fill="#eaf4ff"></circle><text x="60" y="18" text-anchor="middle" font-size="12" fill="#bcd9ff">Suction (bar)</text></svg>
+            <div class="info">
+              <div class="small">Suction (chilled line)</div>
+              <div class="value"><span id="suctionBar">3.5</span> bar <span class="small">/ <span id="suctionPsi">50.8</span> psi</span></div>
+            </div>
+          </div>
+
+          <div class="gauge">
+            <svg id="dischargeGauge" viewBox="0 0 120 80"><path d="M 21.8948822334847 82 A 44 44 0 1 1 98.1051177665153 82" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="8"></path><defs><linearGradient id="grad" x1="0%" x2="100%"><stop offset="0%" stop-color="#60a5fa"></stop><stop offset="100%" stop-color="#3b82f6"></stop></linearGradient></defs><path d="M 21.8948822334847 82 A 44 44 0 0 1 72.12804365594796 17.70448537871397" fill="none" stroke="url(#grad)" stroke-width="8" stroke-linecap="round"></path><line x1="60" y1="60" x2="69.37167009777798" y2="27.317102338097158" stroke="#eaf4ff" stroke-width="2"></line><circle cx="60" cy="60" r="4" fill="#eaf4ff"></circle><text x="60" y="18" text-anchor="middle" font-size="12" fill="#bcd9ff">Discharge (bar)</text></svg>
+            <div class="info">
+              <div class="small">Discharge (chilled line)</div>
+              <div class="value"><span id="dischargeBar">6.8</span> bar <span class="small">/ <span id="dischargePsi">98.6</span> psi</span></div>
+            </div>
+          </div>
+
+          <div class="gauge">
+            <svg viewBox="0 0 120 80">
+              <rect x="6" y="12" width="108" height="56" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.03)"></rect>
+              <text x="60" y="36" font-size="11" text-anchor="middle" fill="#bcd9ff">Differential Pressure</text>
+              <text x="60" y="56" font-size="18" text-anchor="middle" fill="#eaf4ff"><tspan id="diffVal">3.3</tspan> bar</text>
+            </svg>
+            <div class="info">
+              <div class="small">Differential = Discharge - Suction</div>
+              <div class="value"><span id="diffText">3.30</span> bar</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:14px" class="controls card">
+          <div>
+            <label>Suction pressure (bar) — <span class="small">approx 50 psi = 3.5 bar</span></label>
+            <input id="suctionRange" type="range" min="0" max="6" step="0.1" value="3.5">
+          </div>
+
+          <div>
+            <label>Discharge pressure (bar) — <span class="small">approx 100 psi = 6.8 bar</span></label>
+            <input id="dischargeRange" type="range" min="0" max="12" step="0.1" value="6.8">
+          </div>
+
+          <div class="row">
+            <button class="btn" id="dropSuction">Simulate suction drop</button>
+            <button class="btn ghost" id="restore">Restore defaults</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card">
+        <div style="display:flex;flex-direction:column;gap:14px">
+
+          <div class="switch-visual">
+            <div>
+              <div class="small">Differential Pressure Switch</div>
+              <div style="margin-top:8px" class="switch-box">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div><strong>Set:</strong> <span id="setpoint">3.5</span> bar</div>
+                  <div style="margin-left:8px;color:var(--muted)" class="small">(NO / COM / NC terminals)</div>
+                </div>
+
+                <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+                  <div class="terminals">
+                    <div id="termNO" class="term on">NO</div>
+                    <div id="termCOM" class="term on">COM</div>
+                    <div id="termNC" class="term">NC</div>
+                  </div>
+
+                  <div style="text-align:right">
+                    <div class="small">Switch State</div>
+                    <div class="status" style="margin-top:8px">
+                      <div><span id="stateText">ON</span></div>
+                      <div><span id="stateDot" class="dot on"></span></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div style="flex:1">
+              <div class="small">Motor</div>
+              <div style="margin-top:8px" class="motor card">
+                <div class="rotor">
+                  <div id="blade" class="blade spin"></div>
+                </div>
+                <div>
+                  <div class="small">Pump Motor</div>
+                  <div style="font-weight:700" id="motorState">ON</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="small">Notes</div>
+            <ul style="color:var(--muted);line-height:1.6;margin:8px 0 0 18px">
+              <li>Suction gauge: <strong>50 psi ≈ 3.5 bar</strong>.</li>
+              <li>Discharge gauge: <strong>100 psi ≈ 6.8–6.9 bar</strong>.</li>
+              <li>Diff switch set to <strong>3.5 bar</strong> (terminals shown NO, COM, NC).</li>
+              <li>If differential (Discharge − Suction) &lt; setpoint → switch energises and motor turns ON.</li>
+            </ul>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
+            <button class="btn ghost" id="toggleSet">Toggle Setpoint to 3.0/3.5</button>
+            <button class="btn" id="download">Download HTML</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <footer>Initial values: suction = <strong>3.5 bar (50 psi)</strong>, discharge = <strong>6.8 bar (100 psi)</strong>, diff switch = <strong>3.5 bar</strong>.</footer>
+  </div>
+
+  <script>
+    // conversion helpers
+    const BAR_TO_PSI = 14.5037738;
+    const suctionRange = document.getElementById('suctionRange');
+    const dischargeRange = document.getElementById('dischargeRange');
+    const suctionBarEl = document.getElementById('suctionBar');
+    const dischargeBarEl = document.getElementById('dischargeBar');
+    const suctionPsiEl = document.getElementById('suctionPsi');
+    const dischargePsiEl = document.getElementById('dischargePsi');
+    const diffText = document.getElementById('diffText');
+    const diffVal = document.getElementById('diffVal');
+    const setpoint = 3.5; // bar
+    const setpointEl = document.getElementById('setpoint');
+    const setpointLabel = document.getElementById('setpointLabel');
+    setpointEl.innerText = setpoint.toFixed(1);
+    setpointLabel.innerText = setpoint.toFixed(1);
+
+    // elements
+    const termNO = document.getElementById('termNO');
+    const termCOM = document.getElementById('termCOM');
+    const termNC = document.getElementById('termNC');
+    const stateText = document.getElementById('stateText');
+    const stateDot = document.getElementById('stateDot');
+    const motorState = document.getElementById('motorState');
+    const blade = document.getElementById('blade');
+
+    function barToPsi(b){return (b*BAR_TO_PSI).toFixed(1)}
+
+    function drawGauge(svgEl, valueBar, maxBar){
+      const svg = svgEl;
+      svg.innerHTML = '';
+      const w = 120, h = 80, cx = 60, cy = 60, r = 44;
+      const start = -120, end = 120; // degrees
+      // bg arc
+      const bg = document.createElementNS('http://www.w3.org/2000/svg','path');
+      const toXY = (angleDeg, radius)=>{
+        const a = (angleDeg-90)*(Math.PI/180);
+        return [cx + radius*Math.cos(a), cy + radius*Math.sin(a)];
+      }
+      const s = toXY(start,r), e = toXY(end,r);
+      bg.setAttribute('d', `M ${s[0]} ${s[1]} A ${r} ${r} 0 1 1 ${e[0]} ${e[1]}`);
+      bg.setAttribute('fill','none');
+      bg.setAttribute('stroke','rgba(255,255,255,0.04)');
+      bg.setAttribute('stroke-width','8');
+      svg.appendChild(bg);
+
+      const pct = Math.max(0, Math.min(1, valueBar/maxBar));
+      const angle = start + (end-start)*pct;
+      const arc = document.createElementNS('http://www.w3.org/2000/svg','path');
+      const aXY = toXY(angle,r);
+      const large = (angle-start)>180?1:0;
+      arc.setAttribute('d', `M ${s[0]} ${s[1]} A ${r} ${r} 0 ${large} 1 ${aXY[0]} ${aXY[1]}`);
+      arc.setAttribute('fill','none');
+      arc.setAttribute('stroke','url(#grad)');
+      arc.setAttribute('stroke-width','8');
+      arc.setAttribute('stroke-linecap','round');
+      // gradient
+      const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+      const grad = document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
+      grad.setAttribute('id','grad');grad.setAttribute('x1','0%');grad.setAttribute('x2','100%');
+      const s1 = document.createElementNS('http://www.w3.org/2000/svg','stop');s1.setAttribute('offset','0%');s1.setAttribute('stop-color','#60a5fa');
+      const s2 = document.createElementNS('http://www.w3.org/2000/svg','stop');s2.setAttribute('offset','100%');s2.setAttribute('stop-color','#3b82f6');
+      grad.appendChild(s1);grad.appendChild(s2);defs.appendChild(grad);svg.appendChild(defs);
+      svg.appendChild(arc);
+
+      // needle
+      const needleAng = angle;
+      const nXY = toXY(needleAng, r-10);
+      const needle = document.createElementNS('http://www.w3.org/2000/svg','line');
+      needle.setAttribute('x1',cx);needle.setAttribute('y1',cy);needle.setAttribute('x2',nXY[0]);needle.setAttribute('y2',nXY[1]);
+      needle.setAttribute('stroke','#eaf4ff');needle.setAttribute('stroke-width','2');
+      svg.appendChild(needle);
+
+      // center dot
+      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx',cx);dot.setAttribute('cy',cy);dot.setAttribute('r',4);dot.setAttribute('fill','#eaf4ff');svg.appendChild(dot);
+
+      // label
+      const lab = document.createElementNS('http://www.w3.org/2000/svg','text');
+      lab.setAttribute('x',cx);lab.setAttribute('y',18);lab.setAttribute('text-anchor','middle');lab.setAttribute('font-size','12');lab.setAttribute('fill','#bcd9ff');
+      lab.textContent = svgEl.id.includes('suction')? 'Suction (bar)' : 'Discharge (bar)';svg.appendChild(lab);
+    }
+
+    function updateAll(){
+      const su = parseFloat(suctionRange.value);
+      const di = parseFloat(dischargeRange.value);
+      suctionBarEl.innerText = su.toFixed(1);
+      dischargeBarEl.innerText = di.toFixed(1);
+      suctionPsiEl.innerText = barToPsi(su);
+      dischargePsiEl.innerText = barToPsi(di);
+      const diff = (di - su);
+      diffText.innerText = diff.toFixed(2);
+      diffVal.innerText = diff.toFixed(2);
+
+      // draw gauges
+      drawGauge(document.getElementById('suctionGauge'), su, 6);
+      drawGauge(document.getElementById('dischargeGauge'), di, 12);
+
+      // switch logic: energise when diff < setpoint (user requested behaviour)
+      const energised = (diff < setpoint);
+      if(energised){
+        stateText.innerText = 'ON';
+        stateDot.classList.remove('off');stateDot.classList.add('on');
+        motorState.innerText = 'ON';
+        blade.classList.add('spin');
+        // terminals: COM connected to NO when energised
+        termNO.classList.add('on');termCOM.classList.add('on');termNC.classList.remove('on');
+      } else {
+        stateText.innerText = 'OFF';
+        stateDot.classList.remove('on');stateDot.classList.add('off');
+        motorState.innerText = 'OFF';
+        blade.classList.remove('spin');
+        // COM connected to NC when de-energised
+        termNO.classList.remove('on');termCOM.classList.add('on');termNC.classList.add('on');
+      }
+    }
+
+    suctionRange.addEventListener('input', ()=>{updateAll();});
+    dischargeRange.addEventListener('input', ()=>{updateAll();});
+
+    document.getElementById('dropSuction').addEventListener('click', ()=>{
+      // animate suction dropping by 1.5 bar
+      const start = parseFloat(suctionRange.value);
+      const target = Math.max(0, start - 1.6);
+      animateValue(suctionRange, start, target, 700);
+    });
+    document.getElementById('restore').addEventListener('click', ()=>{
+      animateValue(suctionRange, parseFloat(suctionRange.value), 3.5, 600);
+      animateValue(dischargeRange, parseFloat(dischargeRange.value), 6.8, 600);
+    });
+    document.getElementById('toggleSet').addEventListener('click', ()=>{
+      // cosmetic toggle
+      const cur = parseFloat(setpointEl.innerText);
+      const alt = cur===3.5?3.0:3.5;
+      setpointEl.innerText = alt.toFixed(1);setpointLabel.innerText = alt.toFixed(1);
+      // update behaviour by changing internal setpoint variable (for demo)
+      window.SETPT = alt;
+      // we won't change core setpoint logic; visual only
+      setTimeout(()=>{setpointEl.innerText = 3.5;setpointLabel.innerText = 3.5},1200);
+    });
+
+    function animateValue(inputEl, from, to, ms){
+      const steps = Math.max(8, Math.round(ms/16));
+      let i=0;
+      const id = setInterval(()=>{
+        i++;
+        const t = i/steps;
+        const val = from + (to-from)*easeOutQuad(t);
+        inputEl.value = val.toFixed(2);
+        updateAll();
+        if(i>=steps) clearInterval(id);
+      }, ms/steps);
+    }
+    function easeOutQuad(t){return t*(2-t)}
+
+    // initialise
+    updateAll();
+
+    // download HTML
+    document.getElementById('download').addEventListener('click', ()=>{
+      const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'centrifugal-pump-diffswitch.html'; a.click(); URL.revokeObjectURL(url);
+    });
+
+  </script>
+
+
+</body></html>
